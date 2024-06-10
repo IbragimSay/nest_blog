@@ -8,7 +8,6 @@ import { JwtService } from '@nestjs/jwt';
 import {v4} from "uuid"
 import { add } from 'date-fns';
 import { Tokens } from './interface';
-import { agent } from 'supertest';
 
 @Injectable()
 export class AuthService {
@@ -50,6 +49,7 @@ export class AuthService {
                 token
             }
         })
+        console.log(_token)
         if(!_token){
             throw new UnauthorizedException()
         }
