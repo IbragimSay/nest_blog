@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import {v4} from "uuid"
 import { add } from 'date-fns';
 import { Tokens } from './interface';
+import { agent } from 'supertest';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +32,7 @@ export class AuthService {
         })
     }
 
-    async login(dto:loginDto):Promise<Tokens>{
+    async login(dto:loginDto, agent:string):Promise<Tokens>{
         const user:User = await this.userService.findByIdOrMail(dto.mail)
         if(!user){
             throw new UnauthorizedException()
@@ -40,10 +41,10 @@ export class AuthService {
         if(!validPassword){
             throw new UnauthorizedException()
         }
-        return await this.getTokens(user)
+        return await this.getTokens(user, agent)
     }
 
-    async refreshToken(token:string):Promise<Tokens>{
+    async refreshToken(token:string, agent:string):Promise<Tokens>{
         const _token:Token = await this.prismaService.token.findFirst({
             where: {
                 token
@@ -60,27 +61,39 @@ export class AuthService {
         if(!user){
             throw new UnauthorizedException()
         }
-        return await this.getTokens(user)
+        return await this.getTokens(user, agent)
     }
 
-    async getRefreshToken(user:User):Promise<string>{
-        const refreshToken = await this.prismaService.token.create({
-            data: {
+    async getRefreshToken(user:User, agent:string):Promise<string>{
+        const _token = await this.prismaService.token.findFirst({
+            where:{
+                userId: user.id,
+                userAgent: agent
+            }
+        })
+        const token = _token?.token??""
+        const refreshToken = await this.prismaService.token.upsert({
+            where: {
+                token
+            },
+            update: {
+                token: v4(),
+                exp: add(new Date(), {months: 1}),
+            },
+            create: {
                 token: v4(),
                 exp: add(new Date(), {months: 1}),
                 userId: user.id,
-                userAgent: "userAgent"
+                userAgent: agent
             }
         })
         return refreshToken.token
     }
-
-    async getTokens(user:User):Promise<Tokens>{
+    async getTokens(user:User, agent:string):Promise<Tokens>{
         const accsesToken = this.jwtService.sign({id: user.id, mail: user.mail, roles: user.roles})
-        const refreshToken = await this.getRefreshToken(user)
+        const refreshToken = await this.getRefreshToken(user, agent)
         return {accsesToken: `Bearer ${accsesToken}`, refreshToken}
     }
-
     getHashPassword(password:string){
         return hashSync(password, 5)
     }
