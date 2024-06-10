@@ -1,15 +1,20 @@
+import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from './../user/user.service';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { loginDto, signupDto } from './dto';
 import { compare, hashSync } from 'bcrypt';
-import { User } from '@prisma/client';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { Token, User } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import {v4} from "uuid"
+import { add } from 'date-fns';
+import { Tokens } from './interface';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly userService:UserService,
-        private readonly jwtService:JwtService
+        private readonly jwtService:JwtService,
+        private readonly prismaService:PrismaService
     ){}
 
     async signup(dto:signupDto){
@@ -26,7 +31,7 @@ export class AuthService {
         })
     }
 
-    async login(dto:loginDto){
+    async login(dto:loginDto):Promise<Tokens>{
         const user:User = await this.userService.findByIdOrMail(dto.mail)
         if(!user){
             throw new UnauthorizedException()
@@ -35,10 +40,47 @@ export class AuthService {
         if(!validPassword){
             throw new UnauthorizedException()
         }
-        const accsesToken = this.jwtService.sign({user})
-        return {accsesToken}
+        return await this.getTokens(user)
     }
-    
+
+    async refreshToken(token:string):Promise<Tokens>{
+        const _token:Token = await this.prismaService.token.findFirst({
+            where: {
+                token
+            }
+        })
+        if(!_token){
+            throw new UnauthorizedException()
+        }
+        const user:User = await this.prismaService.user.findFirst({
+            where:{
+                id: _token.userId
+            }
+        })
+        if(!user){
+            throw new UnauthorizedException()
+        }
+        return await this.getTokens(user)
+    }
+
+    async getRefreshToken(user:User):Promise<string>{
+        const refreshToken = await this.prismaService.token.create({
+            data: {
+                token: v4(),
+                exp: add(new Date(), {months: 1}),
+                userId: user.id,
+                userAgent: "userAgent"
+            }
+        })
+        return refreshToken.token
+    }
+
+    async getTokens(user:User):Promise<Tokens>{
+        const accsesToken = this.jwtService.sign({id: user.id, mail: user.mail, roles: user.roles})
+        const refreshToken = await this.getRefreshToken(user)
+        return {accsesToken: `Bearer ${accsesToken}`, refreshToken}
+    }
+
     getHashPassword(password:string){
         return hashSync(password, 5)
     }

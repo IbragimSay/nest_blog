@@ -24,10 +24,10 @@ model User {
 
 model Token {
   token     String   @unique()
-  exo       DateTime
+  exp       DateTime
   User      User?    @relation(fields: [userId], references: [id])
   userId    String?
-  userAgent String   @unique()
+  userAgent String
 }
 
 enum Role {
