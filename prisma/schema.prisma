@@ -27,7 +27,7 @@ model Token {
   exo       DateTime
   User      User?    @relation(fields: [userId], references: [id])
   userId    String?
-  userAgent String
+  userAgent String   @unique()
 }
 
 enum Role {
