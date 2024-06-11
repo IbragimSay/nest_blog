@@ -3,3 +3,9 @@ export class Tokens{
     refreshToken:string
     
 }
+
+export class JwtPayload {
+    id: string
+    mail: string
+    roles: string[]
+}

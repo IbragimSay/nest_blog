@@ -1,5 +1,5 @@
 import { AuthService } from './auth.service';
-import { Body, Controller, Get, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UnauthorizedException } from '@nestjs/common';
 import { loginDto, signupDto } from './dto';
 import { Request } from 'express';
 
@@ -9,7 +9,6 @@ export class AuthController {
         private readonly authService:AuthService
     ){}
 
-    
     @Post("signup")
     signup(@Body() dto:signupDto){
         return this.authService.signup(dto)
