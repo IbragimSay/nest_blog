@@ -49,7 +49,6 @@ export class AuthService {
                 token
             }
         })
-        console.log(_token)
         if(!_token){
             throw new UnauthorizedException()
         }
@@ -89,11 +88,13 @@ export class AuthService {
         })
         return refreshToken.token
     }
+
     async getTokens(user:User, agent:string):Promise<Tokens>{
         const accsesToken = this.jwtService.sign({id: user.id, mail: user.mail, roles: user.roles})
         const refreshToken = await this.getRefreshToken(user, agent)
         return {accsesToken: `Bearer ${accsesToken}`, refreshToken}
     }
+    
     getHashPassword(password:string){
         return hashSync(password, 5)
     }

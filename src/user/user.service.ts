@@ -30,7 +30,8 @@ export class UserService {
     async save(dto:createUserDto){
         return await this.prismaService.user.create({
             data: {
-                ...dto
+                ...dto,
+                roles: ["User"]
             }
         })
     }
