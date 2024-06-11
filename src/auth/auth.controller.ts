@@ -1,7 +1,8 @@
 import { AuthService } from './auth.service';
-import { Body, Controller, Get, Post, Req, UnauthorizedException } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, Post, Req, UnauthorizedException, UseInterceptors } from '@nestjs/common';
 import { loginDto, signupDto } from './dto';
 import { Request } from 'express';
+import { UserResponse } from 'src/user/response';
 
 @Controller('auth')
 export class AuthController {
@@ -9,9 +10,11 @@ export class AuthController {
         private readonly authService:AuthService
     ){}
 
+    @UseInterceptors(ClassSerializerInterceptor)
     @Post("signup")
-    signup(@Body() dto:signupDto){
-        return this.authService.signup(dto)
+    async signup(@Body() dto:signupDto){
+        const user = await this.authService.signup(dto)
+        return new UserResponse(user)
     }
 
     @Post("login")

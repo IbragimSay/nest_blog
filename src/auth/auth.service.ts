@@ -84,7 +84,7 @@ export class AuthService {
                 token: v4(),
                 exp: add(new Date(), {months: 1}),
                 userId: user.id,
-                userAgent: agent
+                userAgent: agent,
             }
         })
         return refreshToken.token
