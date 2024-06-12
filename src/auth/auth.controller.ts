@@ -42,7 +42,6 @@ export class AuthController {
     })
     refreshToken(@Req() req:Request){
         const refreshToken = req.headers.authorization
-        console.log(refreshToken)
         const agent = req.headers['user-agent']
         if(!refreshToken){
             throw new UnauthorizedException()

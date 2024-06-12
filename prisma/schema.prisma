@@ -30,6 +30,29 @@ model Token {
   userAgent String
 }
 
+model Post {
+  id     Int        @id @default(autoincrement())
+  title  String
+  texts  PostText[]
+  images Images[]
+}
+
+model PostText {
+  id     Int    @id @default(autoincrement())
+  test   String
+  order  Int
+  Post   Post?  @relation(fields: [postId], references: [id])
+  postId Int?
+}
+
+model Images {
+  id      Int    @id @default(autoincrement())
+  content String
+  order   Int
+  Post    Post?  @relation(fields: [postId], references: [id])
+  postId  Int?
+}
+
 enum Role {
   Admin
   User
