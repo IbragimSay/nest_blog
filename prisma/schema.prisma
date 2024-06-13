@@ -39,7 +39,7 @@ model Post {
 
 model PostText {
   id     Int    @id @default(autoincrement())
-  test   String
+  text   String
   order  Int
   Post   Post?  @relation(fields: [postId], references: [id])
   postId Int?
