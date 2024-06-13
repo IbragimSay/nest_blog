@@ -7,11 +7,12 @@ import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { PostModule } from './post/post.module';
+import { PostTextModule } from './post-text/post-text.module';
 
 @Module({
   imports: [UserModule, AuthModule, PrismaModule, ConfigModule.forRoot({
     isGlobal:true
-  }), PostModule],
+  }), PostModule, PostTextModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
