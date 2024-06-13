@@ -13,6 +13,14 @@ export class PostController {
         return this.postService.getOne(+id)
     }
 
+    @Get("page/:page")
+    getAll(@Param("page") page: number){
+        if(page <= 0){
+            throw new BadRequestException()
+        }
+        return this.postService.getAll(+page)
+    }
+
     @Post()
     create(@Body() dto:createPostDto){
         return this.postService.save(dto)

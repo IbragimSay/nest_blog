@@ -16,6 +16,14 @@ export class PostService {
         })
     }
 
+    async getAll(page:number){
+        const sizePage = 12
+        return await this.prismaService.post.findMany({
+            take: sizePage,
+            skip: (page - 1) * sizePage
+        })
+    }
+
     async save(dto:createPostDto){
         return await this.prismaService.post.create({
             data: {
