@@ -12,6 +12,24 @@ export class PostService {
         return await this.prismaService.post.findFirst({
             where: {
                 id
+            },
+            select: {
+                id: true,
+                title: true,
+                texts: {
+                    select:{
+                        id:true,
+                        text:true,
+                        order: true
+                    }
+                },
+                images: {
+                    select: {
+                        id: true,
+                        content: true,
+                        order:true
+                    }
+                }
             }
         })
     }
@@ -20,7 +38,25 @@ export class PostService {
         const sizePage = 12
         return await this.prismaService.post.findMany({
             take: sizePage,
-            skip: (page - 1) * sizePage
+            skip: (page - 1) * sizePage,
+            select: {
+                id: true,
+                title: true,
+                texts: {
+                    select:{
+                        id:true,
+                        text:true,
+                        order: true
+                    }
+                },
+                images: {
+                    select: {
+                        id: true,
+                        content: true,
+                        order:true
+                    }
+                }
+            }
         })
     }
 
