@@ -1,6 +1,12 @@
 import { PrismaService } from './../prisma/prisma.service';
+<<<<<<< HEAD
 import { Injectable } from '@nestjs/common';
 import { createPostDto, updataPostDto } from './dto';
+=======
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { createPostDto, updataPostDto } from './dto';
+import { Post } from '@prisma/client';
+>>>>>>> post
 
 @Injectable()
 export class PostService {
@@ -16,6 +22,10 @@ export class PostService {
             select: {
                 id: true,
                 title: true,
+<<<<<<< HEAD
+=======
+                userId: true,
+>>>>>>> post
                 texts: {
                     select:{
                         id:true,
@@ -42,6 +52,10 @@ export class PostService {
             select: {
                 id: true,
                 title: true,
+<<<<<<< HEAD
+=======
+                userId: true,
+>>>>>>> post
                 texts: {
                     select:{
                         id:true,
@@ -68,7 +82,17 @@ export class PostService {
         })
     }
 
+<<<<<<< HEAD
     async updata(id:number, dto:updataPostDto){
+=======
+    async updata(id:number, dto:updataPostDto, userId:string){
+        const post:Post = await this.getOne(id)
+
+        if(post.userId != userId){
+            throw new UnauthorizedException()
+        }
+        
+>>>>>>> post
         return await this.prismaService.post.update({
             where: {
                 id
@@ -79,7 +103,16 @@ export class PostService {
         })
     }
 
+<<<<<<< HEAD
     async delete(id:number){
+=======
+    async delete(id:number, userId){
+        const post:Post = await this.getOne(id)
+    
+        if(post.userId != userId){
+            throw new UnauthorizedException()
+        }
+>>>>>>> post
         return await this.prismaService.post.delete({
             where: {
                 id

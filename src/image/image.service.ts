@@ -1,8 +1,15 @@
 import { PostService } from 'src/post/post.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+<<<<<<< HEAD
 import { BadRequestException, Injectable} from '@nestjs/common';
 import { unlink } from "fs"
 import { Images, Post } from '@prisma/client';
+=======
+import { BadRequestException, Injectable, UnauthorizedException,} from '@nestjs/common';
+import { unlink } from "fs"
+import { Images, Post, } from '@prisma/client';
+import { updataImageDto } from './dto/updataImage.dto';
+>>>>>>> post
 @Injectable()
 export class ImageService {
     constructor(
@@ -11,7 +18,11 @@ export class ImageService {
     ){}
 
     async upload(file:string, id:number, order:number){
+<<<<<<< HEAD
         const post:Post = await this.postService.getOne(id)  
+=======
+        const post:Post = await this.postService.getOne(id) 
+>>>>>>> post
         if(!post){
             throw new BadRequestException()
         }
@@ -47,4 +58,35 @@ export class ImageService {
             }
         })
     }
+<<<<<<< HEAD
+=======
+
+    async updataImage(dto:updataImageDto, id:number, userId: string){
+        const image:Images = await this.prismaService.images.findFirst({
+            where: {
+                id
+            }
+        })
+        
+
+        const post:Post = await this.prismaService.post.findFirst({
+            where: {
+                id: image.postId
+            }
+        })
+        
+        if(post.userId != userId){
+            throw new UnauthorizedException()
+        }
+
+        return await this.prismaService.images.update({
+            where: {
+                id: id
+            },
+            data: {
+                ...dto
+            }
+        })
+    }
+>>>>>>> post
 }
