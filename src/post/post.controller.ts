@@ -1,14 +1,18 @@
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { createPostDto, updataPostDto } from './dto';
 import { PostService } from './post.service';
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { createPostResponse, deletePostResponse, PostResponse, updataPostResponse } from './response';
+import { JwtAuthGuard } from 'src/auth/guard';
+import { Request } from 'express';
+import { JwtPayload } from 'src/auth/interface';
 
 @Controller('post')
 @ApiTags("post")
 export class PostController {
     constructor(
-        private readonly postService:PostService
+        private readonly postService:PostService,
+
     ){}
     
     @Get(":id")
@@ -32,6 +36,7 @@ export class PostController {
         return this.postService.getAll(+page)
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     @ApiResponse({
         status: HttpStatus.OK,
@@ -41,25 +46,30 @@ export class PostController {
         return this.postService.save(dto)
     }
 
+    @UseGuards(JwtAuthGuard)
     @Patch(":id")
     @ApiResponse({
         status: HttpStatus.OK,
         type: updataPostResponse
     })
-    updata(@Param("id") id:number, @Body() dto: updataPostDto){
-        return this.postService.updata(+id, dto)
+    updata(@Param("id") id:number, @Body() dto: updataPostDto, @Req() req:Request){
+        const user:JwtPayload = req.user as JwtPayload
+        return this.postService.updata(+id, dto, user.id)
     }
 
+    @UseGuards(JwtAuthGuard)
     @Delete(":id")
     @ApiResponse({
         status: HttpStatus.OK,
         type: deletePostResponse
     })
-    async delete(@Param("id") id:number){
+    async delete(@Param("id") id:number, @Req() req:Request){
+        const user:JwtPayload = req.user as JwtPayload
         const post = await this.postService.getOne(+id)
         if(!post){
             throw new BadRequestException()
         }
-        return this.postService.delete(+id)
+        
+        return this.postService.delete(+id, user.id)
     }
 }
