@@ -90,7 +90,7 @@ export class PostService {
 
     async delete(id:number, userId){
         const post:Post = await this.getOne(id)
-        
+    
         if(post.userId != userId){
             throw new UnauthorizedException()
         }
