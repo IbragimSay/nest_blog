@@ -5,9 +5,9 @@ import { BadRequestException, Body, Controller, Delete, HttpStatus, Param, Patch
 import { diskStorage } from 'multer';
 import { Request } from 'express';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { createImageResponse, deleteImageResponse } from './response';
-import { updataImageDto } from './dto/updataImage.dto';
+import { createImageResponse, deleteImageResponse, updataImageResponse } from './response';
 import { JwtPayload } from 'src/auth/interface';
+import { updataImageDto } from './dto';
 
 @Controller('image')
 @ApiTags("image")
@@ -48,6 +48,11 @@ export class ImageController {
         return this.imageService.delete(+id)
     }
 
+
+    @ApiResponse({
+        status: 200,
+        type: updataImageResponse
+    })
     @UseGuards(JwtAuthGuard)
     @Patch(":id")
     async updataImage(@Body() dto:updataImageDto,@Param("id") imageId: number, @Req() req:Request){
