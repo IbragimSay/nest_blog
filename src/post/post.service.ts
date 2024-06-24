@@ -16,6 +16,7 @@ export class PostService {
             select: {
                 id: true,
                 title: true,
+                userId: true,
                 texts: {
                     select:{
                         id:true,

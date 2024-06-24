@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { BadRequestException, Injectable} from '@nestjs/common';
 import { unlink } from "fs"
 import { Images, Post } from '@prisma/client';
+import { updataImageDto } from './dto/updataImage.dto';
 @Injectable()
 export class ImageService {
     constructor(
@@ -46,5 +47,19 @@ export class ImageService {
                 id:true
             }
         })
+    }
+
+    async updataImage(dto:updataImageDto, id:number, userId: string){
+        const image = await this.prismaService.images.findFirst({
+            where: {
+                id
+            }
+        })
+        const post:Post = await this.prismaService.post.findFirst({
+            where: {
+                id: image.postId
+            }
+        })
+        
     }
 }
