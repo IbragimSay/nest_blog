@@ -1,9 +1,10 @@
 import { updataPostDto } from './../post/dto/updata-post.dto';
 import { PostService } from './../post/post.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { createPostTextDto } from './dto';
 import { updataPostTextDto } from './dto/updatePostText.dto';
+import { Post, PostText } from '@prisma/client';
 
 @Injectable()
 export class PostTextService {
@@ -12,11 +13,16 @@ export class PostTextService {
         private readonly postService:PostService
     ){}
     
-    async save(id:number, dto:createPostTextDto){
-        const post = await this.postService.getOne(id)
+    
+    async save(id:number, dto:createPostTextDto, userId:string){
+        const post:Post = await this.postService.getOne(id)
         if(!post){
             throw new BadRequestException()
         }
+        if(post.userId != userId){
+            throw new BadRequestException()
+        }
+        
         return await this.prismaService.postText.create({
             data: {
                 ...dto,
@@ -25,7 +31,7 @@ export class PostTextService {
         })
     }
 
-    async updata(id:number, dto:updataPostTextDto){
+    async updata(id:number, dto:updataPostTextDto, userId:string){
         const text = await this.prismaService.postText.findFirst({
             where: {
                 id
@@ -34,6 +40,13 @@ export class PostTextService {
         if(!text){
             throw new BadRequestException()
         }
+
+        const post:Post = await this.postService.getOne(text.postId)
+
+        if(post.userId != userId){
+            throw new UnauthorizedException()
+        }
+        
         return await this.prismaService.postText.update({
             where: {
                 id
@@ -44,8 +57,8 @@ export class PostTextService {
         })
     }
 
-    async delete(id:number){
-        const text = await this.prismaService.postText.findFirst({
+    async delete(id:number, userId: string){
+        const text:PostText = await this.prismaService.postText.findFirst({
             where: {
                 id
             }
@@ -53,6 +66,13 @@ export class PostTextService {
         if(!text){
             throw new BadRequestException()
         }
+
+        const post:Post = await this.postService.getOne(text.postId)
+
+        if(post.userId != userId){
+            throw new UnauthorizedException()
+        }
+
         return await this.prismaService.postText.delete({
             where: {
                 id
